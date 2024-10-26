@@ -70,6 +70,8 @@ func (r *Router) Run(addr string) error {
 
 	serviceNames := []string{
 		protogenconnect.ExampleServiceName,
+		protogenconnect.GameServiceName,
+		protogenconnect.RoomServiceName,
 	}
 	mux.Handle(grpchealth.NewHandler(grpchealth.NewStaticChecker(serviceNames...)))
 	mux.Handle(grpcreflect.NewHandlerV1(grpcreflect.NewStaticReflector(serviceNames...)))
