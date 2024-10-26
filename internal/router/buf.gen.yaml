@@ -10,4 +10,4 @@ managed:
   enabled: true
   override:
     - file_option: go_package
-      value: github.com:dena-autumn-2024-g/wrp-server/internal/router/protogen/protobuf;protogen
+      value: github.com/dena-autumn-2024-g/wrp-server/internal/router/protogen/protobuf;protogen
