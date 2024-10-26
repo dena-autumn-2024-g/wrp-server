@@ -32,6 +32,6 @@ jobs:
 
       - name: Force new deployment and wait for services stability in ECS
         run: |
-          aws ecs update-service --cluster ${{ vars.CLUSTER_NAME }} --service $${{ vars.SERVICE_NAME }} --force-new-deployment
+          aws ecs update-service --cluster ${{ vars.CLUSTER_NAME }} --service ${{ vars.SERVICE_NAME }} --force-new-deployment
           aws ecs wait services-stable --cluster ${{ vars.CLUSTER_NAME }} --service ${{ vars.SERVICE_NAME }}
           aws ecs describe-services --cluster ${{ vars.CLUSTER_NAME }} --service ${{ vars.SERVICE_NAME }}
