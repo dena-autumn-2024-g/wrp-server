@@ -26,7 +26,7 @@ jobs:
           go-version-file: go.mod
       - run: mkdir -p /tmp/coverage
       - name: Run test
-        run: go test ./src/... -v -coverprofile=/tmp/coverage/coverage.txt -race -vet=off
+        run: go test ./... -v -coverprofile=/tmp/coverage/coverage.txt -race -vet=off
       # - name: Upload coverage data
       #   uses: codecov/codecov-action@v4.6.0
       #   with:

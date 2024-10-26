@@ -8,7 +8,7 @@ import (
 	connect "connectrpc.com/connect"
 	context "context"
 	errors "errors"
-	protobuf "github.com/dena-autumn-2024-g/wrp-server/internal/router/protogen/protobuf"
+	protobuf "github.com:dena-autumn-2024-g/wrp-server/internal/router/protogen/protobuf"
 	http "net/http"
 	strings "strings"
 )
