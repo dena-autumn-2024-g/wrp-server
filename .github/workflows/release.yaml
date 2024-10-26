@@ -31,8 +31,6 @@ jobs:
           tags: |
             ${{ vars.IMAGE }}:latest
             ${{ vars.IMAGE }}:${{ env.IMAGE_TAG }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
 
       - name: Force new deployment and wait for services stability in ECS
         run: |
