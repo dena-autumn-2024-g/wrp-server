@@ -13,8 +13,6 @@ jobs:
       id-token: write
       contents: read
     steps:
-      - name: Set IMAGE_TAG env
-        run: echo "IMAGE_TAG=${GITHUB_REF:10}" >> $GITHUB_ENV
       - uses: actions/checkout@v4
       - uses: aws-actions/configure-aws-credentials@v1
         with:
@@ -30,7 +28,7 @@ jobs:
           platforms: linux/amd64
           tags: |
             ${{ vars.IMAGE }}:latest
-            ${{ vars.IMAGE }}:${{ env.IMAGE_TAG }}
+            ${{ vars.IMAGE }}:${{ github.sha }}
 
       - name: Force new deployment and wait for services stability in ECS
         run: |
