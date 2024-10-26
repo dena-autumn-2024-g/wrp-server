@@ -9,6 +9,7 @@ jobs:
   image:
     name: Build Docker Image
     runs-on: ubuntu-latest
+    permissions: write-all
     steps:
       - uses: actions/checkout@v4
       - name: Log in to GitHub Docker Registry
