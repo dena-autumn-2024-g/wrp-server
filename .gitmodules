@@ -1,0 +1,3 @@
+[submodule "internal/router/protobuf"]
+	path = internal/router/protobuf
+	url = git@github.com:dena-autumn-2024-g/protobuf.git
