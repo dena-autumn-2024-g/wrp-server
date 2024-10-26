@@ -54,5 +54,13 @@ func routerDI(c *dig.Container) error {
 		return fmt.Errorf("failed to provide example: %w", err)
 	}
 
+	if err := c.Provide(router.NewGame); err != nil {
+		return fmt.Errorf("failed to provide game: %w", err)
+	}
+
+	if err := c.Provide(router.NewRoom); err != nil {
+		return fmt.Errorf("failed to provide room: %w", err)
+	}
+
 	return nil
 }

@@ -21,13 +21,13 @@ import (
 
 type Router struct {
 	example *Example
-	game    protogenconnect.GameServiceHandler
+	game    *Game
 	room    *Room
 }
 
 func NewRouter(
 	example *Example,
-	game protogenconnect.GameServiceHandler,
+	game *Game,
 	room *Room,
 ) *Router {
 	return &Router{
