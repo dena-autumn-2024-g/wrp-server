@@ -14,12 +14,12 @@ jobs:
       contents: read
     steps:
       - uses: actions/checkout@v4
-      - uses: aws-actions/configure-aws-credentials@v1
+      - name: Log in to GitHub Docker Registry
+        uses: docker/login-action@v3
         with:
-          aws-region: ${{ vars.REGION }}
-          role-to-assume: ${{ vars.ROLE_ARN }}
-      - uses: aws-actions/amazon-ecr-login@v1
-        id: login-ecr
+          registry: ghcr.io
+          username: dena-autumn-2024-g
+          password: ${{ secrets.GITHUB_TOKEN }}
       - name: Build and push
         uses: docker/build-push-action@v6
         with:
@@ -27,8 +27,8 @@ jobs:
           push: true
           platforms: linux/amd64
           tags: |
-            ${{ vars.IMAGE }}:latest
-            ${{ vars.IMAGE }}:${{ github.sha }}
+            ghcr.io/dena-autumn-2024-g/wrp-server:latest
+            ghcr.io/dena-autumn-2024-g/wrp-server:${{ github.sha }}
 
       - name: Force new deployment and wait for services stability in ECS
         run: |
