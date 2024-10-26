@@ -21,13 +21,19 @@ import (
 
 type Router struct {
 	example *Example
+	game    protogenconnect.GameServiceHandler
+	room    protogenconnect.RoomServiceHandler
 }
 
 func NewRouter(
 	example *Example,
+	game protogenconnect.GameServiceHandler,
+	room protogenconnect.RoomServiceHandler,
 ) *Router {
 	return &Router{
 		example: example,
+		game:    game,
+		room:    room,
 	}
 }
 
@@ -46,6 +52,18 @@ func (r *Router) Run(addr string) error {
 
 	path, handler := protogenconnect.NewExampleServiceHandler(
 		r.example,
+		connect.WithInterceptors(otelInterceptor, logInterceptor),
+	)
+	mux.Handle(path, handler)
+
+	path, handler = protogenconnect.NewGameServiceHandler(
+		r.game,
+		connect.WithInterceptors(otelInterceptor, logInterceptor),
+	)
+	mux.Handle(path, handler)
+
+	path, handler = protogenconnect.NewRoomServiceHandler(
+		r.room,
 		connect.WithInterceptors(otelInterceptor, logInterceptor),
 	)
 	mux.Handle(path, handler)
