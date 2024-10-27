@@ -23,7 +23,8 @@ func (r *Room) CreateRoom(ctx context.Context, req *connect.Request[protogen.Cre
 
 	return &connect.Response[protogen.CreateRoomResponse]{
 		Msg: &protogen.CreateRoomResponse{
-			RoomId: roomID.String(),
+			RoomId:  roomID.String(),
+			RoomUrl: fmt.Sprintf("https://wrp.mazrean.com/?roomID=%s&serverName=%s", roomID.String(), "a"),
 		},
 	}, nil
 }
