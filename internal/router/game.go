@@ -45,18 +45,20 @@ func (g *Game) StartGameStream(ctx context.Context, req *connect.Request[protoge
 }
 
 func (g *Game) Move(ctx context.Context, req *connect.Request[protogen.MoveRequest]) (*connect.Response[protogen.MoveResponse], error) {
-	streamChan, err := func() (chan<- *protogen.StartGameStreamResponse, error) {
+	streamChan, ok := func() (chan<- *protogen.StartGameStreamResponse, bool) {
 		gameMapLocker.RLock()
 		defer gameMapLocker.RUnlock()
 
 		if _, ok := gameMap[req.Msg.RoomId]; !ok {
-			return nil, fmt.Errorf("room not found")
+			return nil, false
 		}
 
-		return gameMap[req.Msg.RoomId], nil
+		return gameMap[req.Msg.RoomId], true
 	}()
-	if err != nil {
-		return nil, fmt.Errorf("failed to get stream: %w", err)
+	if !ok {
+		return &connect.Response[protogen.MoveResponse]{
+			Msg: &protogen.MoveResponse{},
+		}, nil
 	}
 
 	streamChan <- &protogen.StartGameStreamResponse{
@@ -73,18 +75,20 @@ func (g *Game) Move(ctx context.Context, req *connect.Request[protogen.MoveReque
 }
 
 func (g *Game) PushButton(tcx context.Context, req *connect.Request[protogen.PushButtonRequest]) (*connect.Response[protogen.PushButtonResponse], error) {
-	streamChan, err := func() (chan<- *protogen.StartGameStreamResponse, error) {
+	streamChan, ok := func() (chan<- *protogen.StartGameStreamResponse, bool) {
 		gameMapLocker.RLock()
 		defer gameMapLocker.RUnlock()
 
 		if _, ok := gameMap[req.Msg.RoomId]; !ok {
-			return nil, fmt.Errorf("room not found")
+			return nil, false
 		}
 
-		return gameMap[req.Msg.RoomId], nil
+		return gameMap[req.Msg.RoomId], true
 	}()
-	if err != nil {
-		return nil, fmt.Errorf("failed to get stream: %w", err)
+	if !ok {
+		return &connect.Response[protogen.PushButtonResponse]{
+			Msg: &protogen.PushButtonResponse{},
+		}, nil
 	}
 
 	streamChan <- &protogen.StartGameStreamResponse{
@@ -102,18 +106,20 @@ func (g *Game) PushButton(tcx context.Context, req *connect.Request[protogen.Pus
 }
 
 func (g *Game) ReleaseButton(ctx context.Context, req *connect.Request[protogen.ReleaseButtonRequest]) (*connect.Response[protogen.ReleaseButtonResponse], error) {
-	streamChan, err := func() (chan<- *protogen.StartGameStreamResponse, error) {
+	streamChan, ok := func() (chan<- *protogen.StartGameStreamResponse, bool) {
 		gameMapLocker.RLock()
 		defer gameMapLocker.RUnlock()
 
 		if _, ok := gameMap[req.Msg.RoomId]; !ok {
-			return nil, fmt.Errorf("room not found")
+			return nil, false
 		}
 
-		return gameMap[req.Msg.RoomId], nil
+		return gameMap[req.Msg.RoomId], true
 	}()
-	if err != nil {
-		return nil, fmt.Errorf("failed to get stream: %w", err)
+	if !ok {
+		return &connect.Response[protogen.ReleaseButtonResponse]{
+			Msg: &protogen.ReleaseButtonResponse{},
+		}, nil
 	}
 
 	streamChan <- &protogen.StartGameStreamResponse{
