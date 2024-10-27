@@ -75,3 +75,19 @@ func (r *Room) CloseRoom(ctx context.Context, req *connect.Request[protogen.Clos
 		Msg: &protogen.CloseRoomResponse{},
 	}, nil
 }
+
+func (r *Room) CheckLiveness(ctx context.Context, req *connect.Request[protogen.CheckLivenessRequest]) (*connect.Response[protogen.CheckLivenessResponse], error) {
+	_, err := memdb.GetStream(uuid.MustParse(req.Msg.RoomId))
+	if err != nil {
+		return &connect.Response[protogen.CheckLivenessResponse]{
+			Msg: &protogen.CheckLivenessResponse{
+				IsAlive: false,
+			},
+		}, nil
+	}
+	return &connect.Response[protogen.CheckLivenessResponse]{
+		Msg: &protogen.CheckLivenessResponse{
+			IsAlive: true,
+		},
+	}, nil
+}

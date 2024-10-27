@@ -42,6 +42,9 @@ const (
 	RoomServiceJoinRoomProcedure = "/water_ring.RoomService/JoinRoom"
 	// RoomServiceCloseRoomProcedure is the fully-qualified name of the RoomService's CloseRoom RPC.
 	RoomServiceCloseRoomProcedure = "/water_ring.RoomService/CloseRoom"
+	// RoomServiceCheckLivenessProcedure is the fully-qualified name of the RoomService's CheckLiveness
+	// RPC.
+	RoomServiceCheckLivenessProcedure = "/water_ring.RoomService/CheckLiveness"
 )
 
 // These variables are the protoreflect.Descriptor objects for the RPCs defined in this package.
@@ -51,6 +54,7 @@ var (
 	roomServiceWaitForUserJoinMethodDescriptor = roomServiceServiceDescriptor.Methods().ByName("WaitForUserJoin")
 	roomServiceJoinRoomMethodDescriptor        = roomServiceServiceDescriptor.Methods().ByName("JoinRoom")
 	roomServiceCloseRoomMethodDescriptor       = roomServiceServiceDescriptor.Methods().ByName("CloseRoom")
+	roomServiceCheckLivenessMethodDescriptor   = roomServiceServiceDescriptor.Methods().ByName("CheckLiveness")
 )
 
 // RoomServiceClient is a client for the water_ring.RoomService service.
@@ -62,6 +66,7 @@ type RoomServiceClient interface {
 	JoinRoom(context.Context, *connect.Request[protobuf.JoinRoomRequest]) (*connect.Response[protobuf.JoinRoomResponse], error)
 	// 部屋を閉じる
 	CloseRoom(context.Context, *connect.Request[protobuf.CloseRoomRequest]) (*connect.Response[protobuf.CloseRoomResponse], error)
+	CheckLiveness(context.Context, *connect.Request[protobuf.CheckLivenessRequest]) (*connect.Response[protobuf.CheckLivenessResponse], error)
 }
 
 // NewRoomServiceClient constructs a client for the water_ring.RoomService service. By default, it
@@ -98,6 +103,12 @@ func NewRoomServiceClient(httpClient connect.HTTPClient, baseURL string, opts ..
 			connect.WithSchema(roomServiceCloseRoomMethodDescriptor),
 			connect.WithClientOptions(opts...),
 		),
+		checkLiveness: connect.NewClient[protobuf.CheckLivenessRequest, protobuf.CheckLivenessResponse](
+			httpClient,
+			baseURL+RoomServiceCheckLivenessProcedure,
+			connect.WithSchema(roomServiceCheckLivenessMethodDescriptor),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
@@ -107,6 +118,7 @@ type roomServiceClient struct {
 	waitForUserJoin *connect.Client[protobuf.WaitForUserJoinRequest, protobuf.WaitForUserJoinResponse]
 	joinRoom        *connect.Client[protobuf.JoinRoomRequest, protobuf.JoinRoomResponse]
 	closeRoom       *connect.Client[protobuf.CloseRoomRequest, protobuf.CloseRoomResponse]
+	checkLiveness   *connect.Client[protobuf.CheckLivenessRequest, protobuf.CheckLivenessResponse]
 }
 
 // CreateRoom calls water_ring.RoomService.CreateRoom.
@@ -129,6 +141,11 @@ func (c *roomServiceClient) CloseRoom(ctx context.Context, req *connect.Request[
 	return c.closeRoom.CallUnary(ctx, req)
 }
 
+// CheckLiveness calls water_ring.RoomService.CheckLiveness.
+func (c *roomServiceClient) CheckLiveness(ctx context.Context, req *connect.Request[protobuf.CheckLivenessRequest]) (*connect.Response[protobuf.CheckLivenessResponse], error) {
+	return c.checkLiveness.CallUnary(ctx, req)
+}
+
 // RoomServiceHandler is an implementation of the water_ring.RoomService service.
 type RoomServiceHandler interface {
 	// 部屋を作成
@@ -138,6 +155,7 @@ type RoomServiceHandler interface {
 	JoinRoom(context.Context, *connect.Request[protobuf.JoinRoomRequest]) (*connect.Response[protobuf.JoinRoomResponse], error)
 	// 部屋を閉じる
 	CloseRoom(context.Context, *connect.Request[protobuf.CloseRoomRequest]) (*connect.Response[protobuf.CloseRoomResponse], error)
+	CheckLiveness(context.Context, *connect.Request[protobuf.CheckLivenessRequest]) (*connect.Response[protobuf.CheckLivenessResponse], error)
 }
 
 // NewRoomServiceHandler builds an HTTP handler from the service implementation. It returns the path
@@ -170,6 +188,12 @@ func NewRoomServiceHandler(svc RoomServiceHandler, opts ...connect.HandlerOption
 		connect.WithSchema(roomServiceCloseRoomMethodDescriptor),
 		connect.WithHandlerOptions(opts...),
 	)
+	roomServiceCheckLivenessHandler := connect.NewUnaryHandler(
+		RoomServiceCheckLivenessProcedure,
+		svc.CheckLiveness,
+		connect.WithSchema(roomServiceCheckLivenessMethodDescriptor),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/water_ring.RoomService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case RoomServiceCreateRoomProcedure:
@@ -180,6 +204,8 @@ func NewRoomServiceHandler(svc RoomServiceHandler, opts ...connect.HandlerOption
 			roomServiceJoinRoomHandler.ServeHTTP(w, r)
 		case RoomServiceCloseRoomProcedure:
 			roomServiceCloseRoomHandler.ServeHTTP(w, r)
+		case RoomServiceCheckLivenessProcedure:
+			roomServiceCheckLivenessHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -203,4 +229,8 @@ func (UnimplementedRoomServiceHandler) JoinRoom(context.Context, *connect.Reques
 
 func (UnimplementedRoomServiceHandler) CloseRoom(context.Context, *connect.Request[protobuf.CloseRoomRequest]) (*connect.Response[protobuf.CloseRoomResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("water_ring.RoomService.CloseRoom is not implemented"))
+}
+
+func (UnimplementedRoomServiceHandler) CheckLiveness(context.Context, *connect.Request[protobuf.CheckLivenessRequest]) (*connect.Response[protobuf.CheckLivenessResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("water_ring.RoomService.CheckLiveness is not implemented"))
 }

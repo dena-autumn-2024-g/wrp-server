@@ -7,12 +7,9 @@ import (
 
 	"connectrpc.com/connect"
 	protogen "github.com/dena-autumn-2024-g/wrp-server/internal/router/protogen/protobuf"
-	"github.com/dena-autumn-2024-g/wrp-server/internal/router/protogen/protobuf/protogenconnect"
 )
 
-type Game struct {
-	protogenconnect.GameServiceHandler
-}
+type Game struct{}
 
 func NewGame() *Game {
 	return &Game{}
