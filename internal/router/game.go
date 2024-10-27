@@ -60,9 +60,7 @@ func (g *Game) Move(ctx context.Context, req *connect.Request[protogen.MoveReque
 
 	streamChan <- &protogen.StartGameStreamResponse{
 		Event: &protogen.StartGameStreamResponse_MoveButton{
-			MoveButton: &protogen.MoveRequest{
-				UserId: req.Msg.UserId,
-			},
+			MoveButton: req.Msg,
 		},
 	}
 
