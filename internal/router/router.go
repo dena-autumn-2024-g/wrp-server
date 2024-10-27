@@ -76,6 +76,10 @@ func (r *Router) Run(addr string) error {
 	mux.Handle(grpchealth.NewHandler(grpchealth.NewStaticChecker(serviceNames...)))
 	mux.Handle(grpcreflect.NewHandlerV1(grpcreflect.NewStaticReflector(serviceNames...)))
 
+	mux.Handle("GET /health", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+	}))
+
 	return http.ListenAndServe(
 		addr,
 		h2c.NewHandler(mux, &http2.Server{}),
