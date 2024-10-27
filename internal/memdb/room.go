@@ -47,7 +47,7 @@ func Join(roomID uuid.UUID) (uint32, error) {
 	}
 
 	userID := roomItem.userCount.Add(1)
-	roomItem.joinChan <- userID
+	roomItem.joinChan <- userID - 1
 
 	return userID - 1, nil
 }
