@@ -1,39 +1,53 @@
-name: Release
+name: Server Deploy
 
 on:
   push:
-    branches:
-      - "main"
+    tags:
+      - v*.*.*
+    branches-ignore:
+      - "**"
 
 jobs:
-  image:
-    name: Build Docker Image
+  build_and_deploy:
+    name: Build Server Image
     runs-on: ubuntu-latest
-    permissions: write-all
+    permissions:
+      contents: "read"
+      id-token: "write"
     steps:
-      - uses: actions/checkout@v4
-      - uses: aws-actions/configure-aws-credentials@v1
+      - name: Set IMAGE_TAG env
+        run: echo "IMAGE_TAG=$(echo ${GITHUB_REF:11})" >> $GITHUB_ENV
+      - uses: actions/checkout@v4.1.7
+      - name: Authenticate to Google Cloud
+        id: auth
+        uses: google-github-actions/auth@v2
         with:
-          aws-region: ${{ vars.REGION }}
-          role-to-assume: ${{ vars.ROLE_ARN }}
-      - name: Log in to GitHub Docker Registry
-        uses: docker/login-action@v3
+          token_format: access_token
+          workload_identity_provider: ${{ vars.GOOGLE_IAM_WORKLOAD_IDENTITY_POOL_PROVIDER }}
+          service_account: ${{ vars.GOOGLE_IAM_SERVICE_ACCOUNT }}
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Docker Auth
+        uses: "docker/login-action@v1"
         with:
-          registry: ghcr.io
-          username: dena-autumn-2024-g
-          password: ${{ secrets.GITHUB_TOKEN }}
+          username: oauth2accesstoken
+          password: ${{ steps.auth.outputs.access_token }}
+          registry: ${{ vars.REGISTRY }}
       - name: Build and push
         uses: docker/build-push-action@v6
         with:
-          context: .
+          context: ./
+          file: ./deploy/Dockerfile
           push: true
           platforms: linux/amd64
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
           tags: |
-            ghcr.io/dena-autumn-2024-g/wrp-server:latest
-            ghcr.io/dena-autumn-2024-g/wrp-server:${{ github.sha }}
-
-      - name: Force new deployment and wait for services stability in ECS
-        run: |
-          aws ecs update-service --cluster ${{ vars.CLUSTER_NAME }} --service ${{ vars.SERVICE_NAME }} --force-new-deployment
-          aws ecs wait services-stable --cluster ${{ vars.CLUSTER_NAME }} --service ${{ vars.SERVICE_NAME }}
-          aws ecs describe-services --cluster ${{ vars.CLUSTER_NAME }} --service ${{ vars.SERVICE_NAME }}
+            ${{ vars.SERVER_IMAGE }}:latest
+            ${{ vars.SERVER_IMAGE }}:${{ env.IMAGE_TAG }}
+      # - id: "deploy"
+      #   uses: "google-github-actions/deploy-cloudrun@v2"
+      #   with:
+      #     region: ${{ vars.REGION }}
+      #     service: ${{ vars.SERVER_CLOUDRUN_SERVICE }}
+      #     image: ${{ vars.SERVER_IMAGE }}
