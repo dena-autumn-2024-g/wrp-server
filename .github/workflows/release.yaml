@@ -44,9 +44,9 @@ jobs:
           tags: |
             ${{ vars.SERVER_IMAGE }}:latest
             ${{ vars.SERVER_IMAGE }}:${{ env.IMAGE_TAG }}
-      # - id: "deploy"
-      #   uses: "google-github-actions/deploy-cloudrun@v2"
-      #   with:
-      #     region: ${{ vars.REGION }}
-      #     service: ${{ vars.SERVER_CLOUDRUN_SERVICE }}
-      #     image: ${{ vars.SERVER_IMAGE }}
+      - id: "deploy"
+        uses: "google-github-actions/deploy-cloudrun@v2"
+        with:
+          region: ${{ vars.REGION }}
+          service: ${{ vars.SERVER_CLOUDRUN_SERVICE }}
+          image: ${{ vars.SERVER_IMAGE }}
