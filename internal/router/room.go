@@ -2,6 +2,7 @@ package router
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"connectrpc.com/connect"
@@ -52,7 +53,12 @@ func (r *Room) WaitForUserJoin(ctx context.Context, req *connect.Request[protoge
 
 func (r *Room) JoinRoom(ctx context.Context, req *connect.Request[protogen.JoinRoomRequest]) (*connect.Response[protogen.JoinRoomResponse], error) {
 	userID, err := memdb.Join(uuid.MustParse(req.Msg.RoomId))
-	if err != nil {
+	switch {
+	case errors.Is(err, memdb.ErrRoomNotFound):
+		return nil, connect.NewError(connect.CodeNotFound, err)
+	case errors.Is(err, memdb.ErrRoomIsFull):
+		return nil, connect.NewError(connect.CodeResourceExhausted, err)
+	case err != nil:
 		return nil, fmt.Errorf("failed to join room: %w", err)
 	}
 

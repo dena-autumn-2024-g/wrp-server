@@ -31,6 +31,11 @@ func CreateRoom(roomID uuid.UUID) {
 	}
 }
 
+var (
+	ErrRoomNotFound = errors.New("room not found")
+	ErrRoomIsFull   = errors.New("room is full")
+)
+
 func Join(roomID uuid.UUID) (uint32, error) {
 	roomItem, ok := func() (*RoomItem, bool) {
 		userCountMapLocker.RLock()
@@ -43,10 +48,18 @@ func Join(roomID uuid.UUID) (uint32, error) {
 		return userCountMap[roomID], true
 	}()
 	if !ok {
-		return 0, errors.New("room not found")
+		return 0, ErrRoomNotFound
+	}
+
+	if roomItem.userCount.Load() >= 10 {
+		return 0, ErrRoomIsFull
 	}
 
 	userID := roomItem.userCount.Add(1)
+	if userID > 10 {
+		return 0, ErrRoomIsFull
+	}
+
 	roomItem.joinChan <- userID - 1
 
 	return userID - 1, nil
