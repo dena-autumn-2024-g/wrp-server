@@ -40,15 +40,18 @@ func (r *Room) WaitForUserJoin(ctx context.Context, req *connect.Request[protoge
 		return fmt.Errorf("failed to get stream: %w", err)
 	}
 
-	for userID := range joinChan {
-		if err := stream.Send(&protogen.WaitForUserJoinResponse{
-			UserId: int32(userID),
-		}); err != nil {
-			return fmt.Errorf("failed to send stream: %w", err)
+	for {
+		select {
+		case userID := <-joinChan:
+			if err := stream.Send(&protogen.WaitForUserJoinResponse{
+				UserId: int32(userID),
+			}); err != nil {
+				return fmt.Errorf("failed to send stream: %w", err)
+			}
+		case <-ctx.Done():
+			return nil
 		}
 	}
-
-	return nil
 }
 
 func (r *Room) JoinRoom(ctx context.Context, req *connect.Request[protogen.JoinRoomRequest]) (*connect.Response[protogen.JoinRoomResponse], error) {
