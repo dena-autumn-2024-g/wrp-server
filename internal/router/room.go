@@ -20,7 +20,12 @@ func NewRoom() *Room {
 func (r *Room) CreateRoom(ctx context.Context, req *connect.Request[protogen.CreateRoomRequest]) (*connect.Response[protogen.CreateRoomResponse], error) {
 	roomID := uuid.New()
 
-	memdb.CreateRoom(roomID)
+	userLimit := uint32(req.Msg.UserLimit)
+	if userLimit == 0 {
+		userLimit = 10
+	}
+
+	memdb.CreateRoom(roomID, userLimit)
 
 	return &connect.Response[protogen.CreateRoomResponse]{
 		Msg: &protogen.CreateRoomResponse{

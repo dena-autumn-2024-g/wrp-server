@@ -11,6 +11,7 @@ import (
 type RoomItem struct {
 	userCount *atomic.Uint32
 	joinChan  chan uint32
+	limit     uint32
 }
 
 var (
@@ -18,7 +19,7 @@ var (
 	userCountMapLocker = &sync.RWMutex{}
 )
 
-func CreateRoom(roomID uuid.UUID) {
+func CreateRoom(roomID uuid.UUID, limit uint32) {
 	atomicUint := &atomic.Uint32{}
 	atomicUint.Store(0)
 
@@ -28,6 +29,7 @@ func CreateRoom(roomID uuid.UUID) {
 	userCountMap[roomID] = &RoomItem{
 		userCount: atomicUint,
 		joinChan:  make(chan uint32, 100),
+		limit:     limit,
 	}
 }
 
@@ -51,7 +53,7 @@ func Join(roomID uuid.UUID) (uint32, error) {
 		return 0, ErrRoomNotFound
 	}
 
-	if roomItem.userCount.Load() >= 10 {
+	if roomItem.userCount.Load() >= roomItem.limit {
 		return 0, ErrRoomIsFull
 	}
 
