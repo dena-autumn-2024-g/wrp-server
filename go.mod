@@ -3,7 +3,7 @@ module github.com/dena-autumn-2024-g/wrp-server
 go 1.23.0
 
 require (
-	connectrpc.com/connect v1.17.0
+	connectrpc.com/connect v1.18.1
 	github.com/bufbuild/buf v1.47.2
 	google.golang.org/protobuf v1.35.1
 )
